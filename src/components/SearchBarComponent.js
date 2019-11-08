@@ -13,34 +13,17 @@ import { searchAutocomplete } from "../services/searchAutocomplete";
 export default class SearchBarComponent extends Component {
   constructor() {
     super();
-    (this.state = {
+    this.state = {
       inputValue: "",
-      suggestions: [
-        { name: "Timisoara" },
-        { name: "Timimon" },
-        { name: "Timimon" },
-        { name: "Timimon" },
-        { name: "Timimon" },
-        { name: "Timimon" },
-        { name: "Timimon" },
-        { name: "Timimon" },
-        { name: "Timimon" },
-        { name: "Timimon" },
-        { name: "Timimon" },
-        { name: "Timimon" },
-        { name: "Timisesti, Romania" }
-      ]
-    }),
-      (this.timeout = null);
+      suggestions: []
+    };
+    this.timeout = null;
   }
 
-  update = async inputValue => {
-    this.setState({ inputValue }, () => console.log(this.state.inputValue));
+  update = inputValue => {
+    this.setState({ inputValue });
     clearTimeout(this.timeout);
-    this.timeout = setTimeout(async () => {
-      const suggestions = await searchAutocomplete(inputValue);
-      console.log(suggestions);
-    }, 500);
+    this.timeout = setTimeout(() => this.fetch(inputValue), 500);
   };
 
   clear = () => {
@@ -48,9 +31,28 @@ export default class SearchBarComponent extends Component {
   };
 
   press = item => {
-    this.update(item.name);
-    this.setState({ suggestions: null });
+    this.setState({ inputValue: item.name, suggestions: null });
     console.log(item);
+  };
+
+  // fetch for suggestions
+  fetch = async inputValue => {
+    console.log("fetch...");
+    if (!inputValue) return this.setState({ suggestions: null });
+    const data = await searchAutocomplete(inputValue);
+    return (
+      data &&
+      data.length > 0 &&
+      this.setState({
+        suggestions: data.map(location => {
+          return {
+            name: location.name,
+            lat: location.lat,
+            lon: location.lon
+          };
+        })
+      })
+    );
   };
 
   render() {
