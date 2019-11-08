@@ -6,6 +6,14 @@ export default function App() {
   return (
     <View style={styles.container}>
       <SearchBarComponent />
+      <View
+        style={{
+          width: 200,
+          height: 100,
+          backgroundColor: "blue",
+          marginTop: 330
+        }}
+      ></View>
     </View>
   );
 }
