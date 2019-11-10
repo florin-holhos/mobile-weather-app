@@ -1,27 +1,28 @@
-import React from "react";
-import { StyleSheet, View } from "react-native";
-import SearchBarComponent from "./src/components/SearchBarComponent";
+import React, { Component } from "react";
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <SearchBarComponent />
-      <View
-        style={{
-          width: 200,
-          height: 100,
-          backgroundColor: "blue",
-          marginTop: 330
-        }}
-      ></View>
-    </View>
-  );
-}
+// components
+import Home from "./src/components/screens/Home/Home";
+import Forecast from "./src/components/screens/Forecast/Forecast";
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "flex-start"
+// naviation
+import { createAppContainer } from "react-navigation";
+import { createStackNavigator } from "react-navigation-stack";
+
+// navigation setup
+const RootStack = createStackNavigator(
+  {
+    Home: Home,
+    Forecast: Forecast
+  },
+  {
+    initialRouteName: "Home"
   }
-});
+);
+
+const AppContainer = createAppContainer(RootStack);
+
+export default class App extends Component {
+  render() {
+    return <AppContainer />;
+  }
+}
