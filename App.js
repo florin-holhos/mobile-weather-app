@@ -2,7 +2,7 @@ import React, { Component } from "react";
 
 // components
 import Home from "./src/components/screens/Home/Home";
-import Forecast from "./src/components/screens/Forecast/Forecast";
+import Details from "./src/components/screens/Details/Details";
 
 // naviation
 import { createAppContainer } from "react-navigation";
@@ -12,7 +12,7 @@ import { createStackNavigator } from "react-navigation-stack";
 const RootStack = createStackNavigator(
   {
     Home: Home,
-    Forecast: Forecast
+    Details: Details
   },
   {
     initialRouteName: "Home"

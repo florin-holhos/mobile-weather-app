@@ -32,6 +32,7 @@ export default class Home extends Component {
       locations: null,
       currentLocationName: null,
       weather: null,
+      showSearchbar: false,
       loading: true
     };
   }
@@ -68,29 +69,33 @@ export default class Home extends Component {
 
   handleSearch = item => {
     const { navigation } = this.props;
-    navigation.navigate("Forecast", { location: item });
+    navigation.navigate("Details", { location: item });
   };
 
   render() {
     const { currentLocationName, weather } = this.state;
     return (
       <ScrollView>
-        <LinearGradient
-          style={this.styles.container}
-          colors={["#4a00e0", "#8e2de2"]}
-        >
+        <View style={this.styles.container}>
           <Search handleSearch={this.handleSearch} />
-          <WeatherContainer
-            location={{ name: currentLocationName, weather: weather }}
-          />
-        </LinearGradient>
+          <Text style={this.styles.currentLocationName}>
+            {currentLocationName && currentLocationName}
+          </Text>
+          <WeatherContainer weather={weather} />
+        </View>
       </ScrollView>
     );
   }
   styles = StyleSheet.create({
     container: {
       height: 700,
-      padding: 10
+      padding: 10,
+      backgroundColor: "#eee"
+    },
+    currentLocationName: {
+      textAlign: "center",
+      fontSize: 22,
+      marginTop: 30
     }
   });
 }

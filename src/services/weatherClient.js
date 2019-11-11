@@ -1,16 +1,16 @@
 import axios from "axios";
 
 const icons = {
-  "clear-day": "img/day_clear.png",
-  "clear-night": "img/night_clear.png",
-  rain: "img/rain.png",
-  snow: "img/snow.png",
-  sleet: "img/sleet.png",
-  wind: "img/wind.png",
-  fog: "img/fog.png",
-  cloudy: "img/cloudy.png",
-  "partly-cloudy-day": "img/day_partial_cloud.png",
-  "partly-cloudy-night": "img/night_partial_cloud.png"
+  "clear-day": "img/weather/day_clear.png",
+  "clear-night": "img/weather/night_clear.png",
+  rain: "img/weather/rain.png",
+  snow: "img/weather/snow.png",
+  sleet: "img/weather/sleet.png",
+  wind: "img/weather/wind.png",
+  fog: "img/weather/fog.png",
+  cloudy: "img/weather/cloudy.png",
+  "partly-cloudy-day": "img/weather/day_partial_cloud.png",
+  "partly-cloudy-night": "img/weather/night_partial_cloud.png"
 };
 
 const days = [
@@ -35,7 +35,7 @@ export const getWeather = async (lat, long) => {
     // format response
     const weather = response.data;
     const currently = weather.currently;
-    const today = weather.daily.data[0];
+    currently.imgSrc = icons[weather.currently.icon];
     const forecast = weather.daily.data.slice(1, 5).map(day => {
       return {
         ...day,
@@ -43,7 +43,8 @@ export const getWeather = async (lat, long) => {
         dayOfWeek: days[new Date(day.time * 1000).getDay()]
       };
     });
-    return { currently: currently, today: today, forecast: forecast };
+
+    return { currently: currently, forecast: forecast };
   } catch (err) {
     console.log(err);
     return null;
