@@ -2,8 +2,12 @@ import React, { Component } from "react";
 import { Text, View, StyleSheet } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { Ionicons } from "@expo/vector-icons";
-
+import WeatherContainer from "../../WeatherContainer";
 export default class Details extends Component {
+  state = {
+    weather: null
+  };
+
   static navigationOptions = ({ navigation }) => ({
     title: `${navigation.state.params.location.name}`,
     headerRight: (
@@ -21,14 +25,17 @@ export default class Details extends Component {
     const location = navigation.getParam("location", null);
     return (
       <ScrollView>
-        <View style={this.styles.container}></View>
+        <View style={this.styles.container}>
+          {location && <WeatherContainer location={location} />}
+        </View>
       </ScrollView>
     );
   }
   styles = StyleSheet.create({
     container: {
       padding: 10,
-      height: 700
+      height: 700,
+      backgroundColor: "#eee"
     }
   });
 }

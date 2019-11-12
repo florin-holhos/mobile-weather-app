@@ -1,24 +1,16 @@
 import React, { Component } from "react";
-import {
-  Text,
-  View,
-  Button,
-  StyleSheet,
-  ToolbarAndroidComponent
-} from "react-native";
+import { Text, View, StyleSheet, ActivityIndicator } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
-import { LinearGradient } from "expo-linear-gradient";
 
 // current location setup
-import Constants from "expo-constants";
 import * as Location from "expo-location";
 import * as Permissions from "expo-permissions";
 import { getAddress } from "../../../services/reverseGeocoding";
-import { getWeather } from "../../../services/weatherClient";
 
 // components
 import Search from "../../Search";
 import WeatherContainer from "../../WeatherContainer";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default class Home extends Component {
   static navigationOptions = {
@@ -29,10 +21,8 @@ export default class Home extends Component {
   constructor() {
     super();
     this.state = {
-      locations: null,
-      currentLocationName: null,
-      weather: null,
-      showSearchbar: false,
+      locations: null, // will be updated in the future
+      currentLocation: null,
       loading: true
     };
   }
@@ -51,20 +41,19 @@ export default class Home extends Component {
     }
 
     const location = await Location.getCurrentPositionAsync({});
-    const address = await getAddress(
-      location.coords.latitude,
-      location.coords.longitude
-    );
+    const { latitude, longitude } = location.coords;
+    const address = await getAddress(latitude, longitude);
+    console.log(address);
     this.setState({
-      currentLocationName: `${address.village || address.city}, ${
-        address.country
-      }`
+      currentLocation: {
+        name: `${address.village || address.city}, ${address.county}, ${
+          address.country
+        }`,
+        lat: latitude,
+        lon: longitude
+      },
+      loading: false
     });
-    const weather = await getWeather(
-      location.coords.latitude,
-      location.coords.longitude
-    );
-    this.setState({ weather });
   };
 
   handleSearch = item => {
@@ -73,15 +62,24 @@ export default class Home extends Component {
   };
 
   render() {
-    const { currentLocationName, weather } = this.state;
+    const { currentLocation, loading } = this.state;
     return (
       <ScrollView>
         <View style={this.styles.container}>
           <Search handleSearch={this.handleSearch} />
-          <Text style={this.styles.currentLocationName}>
-            {currentLocationName && currentLocationName}
-          </Text>
-          <WeatherContainer weather={weather} />
+          {loading && (
+            <ActivityIndicator
+              size="large"
+              color="#0000ff"
+              style={{ marginTop: 40 }}
+            />
+          )}
+          {currentLocation && (
+            <Text style={this.styles.currentLocationName}>
+              {currentLocation.name}
+            </Text>
+          )}
+          {currentLocation && <WeatherContainer location={currentLocation} />}
         </View>
       </ScrollView>
     );
@@ -94,8 +92,9 @@ export default class Home extends Component {
     },
     currentLocationName: {
       textAlign: "center",
-      fontSize: 22,
-      marginTop: 30
+      fontSize: 16,
+      marginTop: 40,
+      marginBottom: -20
     }
   });
 }
