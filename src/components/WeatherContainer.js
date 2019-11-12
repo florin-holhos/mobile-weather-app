@@ -12,10 +12,13 @@ import { images } from "../img/index";
 import { getWeather } from "../services/weatherClient";
 
 export default class WeatherContainer extends Component {
-  state = {
-    weather: null,
-    loading: true
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      weather: null,
+      loading: true
+    };
+  }
 
   /**@important => mount this component only with location prop */
   componentDidMount() {
@@ -34,7 +37,7 @@ export default class WeatherContainer extends Component {
 
   render() {
     const { weather, loading } = this.state;
-    console.log(weather && weather.currently.icon);
+    console.log(weather && weather.currently);
     return (
       <>
         {loading && (
@@ -57,10 +60,16 @@ export default class WeatherContainer extends Component {
             </View>
 
             <View style={this.styles.details}>
-              <Text>Details</Text>
+              <View style={this.styles.sectionHeader}>
+                <Text style={{ fontSize: 16 }}>Details</Text>
+                <View style={this.styles.hr} />
+              </View>
             </View>
             <View style={this.styles.forecast}>
-              <Text>Forecast</Text>
+              <View style={this.styles.sectionHeader}>
+                <Text style={{ fontSize: 16 }}>Next 4 days</Text>
+                <View style={this.styles.hr} />
+              </View>
             </View>
           </ScrollView>
         )}
@@ -80,6 +89,17 @@ export default class WeatherContainer extends Component {
       width: Dimensions.get("window").width * 0.8,
       overflow: "visible",
       height: 200
+    },
+    sectionHeader: {
+      display: "flex",
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between"
+    },
+    hr: {
+      backgroundColor: "#222",
+      height: 1,
+      flexGrow: 0.96
     },
     details: {
       display: "flex"

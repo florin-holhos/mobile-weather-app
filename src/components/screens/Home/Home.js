@@ -23,19 +23,28 @@ export default class Home extends Component {
     this.state = {
       locations: null, // will be updated in the future
       currentLocation: null,
-      loading: true
+      loading: true,
+      time: null
     };
+    this.timeout = null; // initialize in updateTime method
   }
 
   componentDidMount() {
     this.getLocationAsync();
+    this.updateTime();
+  }
+
+  componentWillUnmount() {
+    // remove timer on unmount
+    clearTimeout(this.timeout);
   }
 
   // get current location
   getLocationAsync = async () => {
     let { status } = await Permissions.askAsync(Permissions.LOCATION);
     if (status !== "granted") {
-      this.setState({
+      this.setState({ loading: false });
+      return this.setState({
         errorMessage: "Permission to access location was denied"
       });
     }
@@ -43,7 +52,6 @@ export default class Home extends Component {
     const location = await Location.getCurrentPositionAsync({});
     const { latitude, longitude } = location.coords;
     const address = await getAddress(latitude, longitude);
-    console.log(address);
     this.setState({
       currentLocation: {
         name: `${address.village || address.city}, ${address.county}, ${
@@ -61,8 +69,18 @@ export default class Home extends Component {
     navigation.navigate("Details", { location: item });
   };
 
+  updateTime = () => {
+    const date = new Date();
+    let timeFormat = date.toLocaleTimeString();
+    timeFormat = timeFormat.slice(0, timeFormat.lastIndexOf(":"));
+    const time = `${date.toDateString().slice(0, 3)}, ${timeFormat}`;
+    this.timeout = setTimeout(this.updateTime, 10000);
+    if (time === this.state.time) return;
+    this.setState({ time });
+  };
+
   render() {
-    const { currentLocation, loading } = this.state;
+    const { currentLocation, time, loading } = this.state;
     return (
       <ScrollView>
         <View style={this.styles.container}>
@@ -75,10 +93,16 @@ export default class Home extends Component {
             />
           )}
           {currentLocation && (
-            <Text style={this.styles.currentLocationName}>
-              {currentLocation.name}
-            </Text>
+            <>
+              <Text style={this.styles.currentLocationName}>
+                {currentLocation.name}
+              </Text>
+              <Text style={{ textAlign: "center", marginTop: 10 }}>
+                {time && time}
+              </Text>
+            </>
           )}
+
           {currentLocation && <WeatherContainer location={currentLocation} />}
         </View>
       </ScrollView>
@@ -87,14 +111,13 @@ export default class Home extends Component {
   styles = StyleSheet.create({
     container: {
       height: 700,
-      padding: 10,
+      padding: 15,
       backgroundColor: "#eee"
     },
     currentLocationName: {
       textAlign: "center",
       fontSize: 16,
-      marginTop: 40,
-      marginBottom: -20
+      marginTop: 30
     }
   });
 }
