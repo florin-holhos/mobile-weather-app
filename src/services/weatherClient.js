@@ -16,7 +16,7 @@ export const getWeather = async (lat, long) => {
 
   try {
     const response = await axios.get(
-      `${url}/${key}/${lat},${long}?exclude=minutely,hourly,alerts,flags&units=si`
+      `${url}/${key}/${lat},${long}?exclude=minutely,hourly,alerts,flags&units=ca`
     );
 
     // format response

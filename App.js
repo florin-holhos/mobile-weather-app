@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 
 // components
+import LocationProvider from "./src/components/LocationContext";
 import Home from "./src/components/screens/Home/Home";
 import Details from "./src/components/screens/Details/Details";
 
@@ -23,6 +24,10 @@ const AppContainer = createAppContainer(RootStack);
 
 export default class App extends Component {
   render() {
-    return <AppContainer />;
+    return (
+      <LocationProvider>
+        <AppContainer />
+      </LocationProvider>
+    );
   }
 }
