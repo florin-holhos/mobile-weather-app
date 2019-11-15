@@ -8,10 +8,9 @@ import * as Permissions from "expo-permissions";
 import { getAddress } from "../../../services/reverseGeocoding";
 
 // components
-import Search from "../../Search";
 import WeatherContainer from "../../WeatherContainer";
-import { LinearGradient } from "expo-linear-gradient";
 import { LocationContext } from "../../LocationContext";
+import Header from "../../Header";
 export default class Home extends Component {
   static navigationOptions = {
     headerStyle: {
@@ -24,16 +23,16 @@ export default class Home extends Component {
   constructor() {
     super();
     this.state = {
-      currentLocation: null,
+      location: null,
       loading: true,
-      time: null
+      date: null
     };
     this.timeout = null; // initialize in updateTime method
   }
 
   componentDidMount() {
     this.getLocationAsync();
-    this.updateTime();
+    this.updateDate();
   }
 
   componentWillUnmount() {
@@ -51,49 +50,68 @@ export default class Home extends Component {
       });
     }
 
-    const location = await Location.getCurrentPositionAsync({});
-    const { latitude, longitude } = location.coords;
+    const position = await Location.getCurrentPositionAsync({});
+    const { latitude, longitude } = position.coords;
     const address = await getAddress(latitude, longitude);
-    const currentLocation = {
-      name: `${address.village || address.city}, ${address.county}, ${
-        address.country
-      }`,
+    const location = {
+      name: address.village || address.city,
       lat: latitude,
       lon: longitude
     };
+
+    // generate id
+    location.id = uuid4();
+
     this.setState({
-      currentLocation: currentLocation,
+      location: location,
       loading: false
     });
-    // generate id
-    currentLocation.id = uuid4();
-    this.context.updateLocations(currentLocation);
+    // update context
+    this.context.updateLocations(location);
   };
 
   // get current time
-  updateTime = () => {
-    const date = new Date();
-    let timeFormat = date.toLocaleTimeString();
-    timeFormat = timeFormat.slice(0, timeFormat.lastIndexOf(":"));
-    const time = `${date.toDateString().slice(0, 3)}, ${timeFormat}`;
-    // set a timer
-    this.timeout = setTimeout(this.updateTime, 10000);
-    if (time === this.state.time) return;
-    this.setState({ time });
+  updateDate = () => {
+    const days = [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ];
+
+    const months = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December"
+    ];
+    let date = new Date();
+    date = `${days[date.getDay() - 1]} ${date.getDate()} ${
+      months[date.getMonth()]
+    } ${date.getFullYear()}`;
+    return this.setState({ date });
   };
 
   render() {
-    const { locations, updateLocations } = this.context;
-    const { currentLocation, time, loading } = this.state;
-    const { navigate } = this.props.navigation;
+    const { location, date, loading } = this.state;
+    const { navigation } = this.props;
     return (
       <ScrollView>
         <View style={this.styles.container}>
-          <Search
-            locations={locations}
-            updateLocations={updateLocations}
-            navigate={navigate}
-          />
+          {navigation && location && (
+            <Header navigation={navigation} location={location} />
+          )}
           {loading && (
             <ActivityIndicator
               size="large"
@@ -101,18 +119,12 @@ export default class Home extends Component {
               style={{ marginTop: 40 }}
             />
           )}
-          {currentLocation && (
+          {location && (
             <>
-              <Text style={this.styles.currentLocationName}>
-                {currentLocation.name}
-              </Text>
-              <Text style={{ textAlign: "center", marginTop: 10 }}>
-                {time && time}
-              </Text>
+              <Text style={this.styles.date}>{date && date}</Text>
+              <WeatherContainer location={location} />
             </>
           )}
-
-          {currentLocation && <WeatherContainer location={currentLocation} />}
         </View>
       </ScrollView>
     );
@@ -120,14 +132,9 @@ export default class Home extends Component {
 
   styles = StyleSheet.create({
     container: {
-      height: 1200,
-      padding: 15,
-      backgroundColor: "#eee"
+      height: 1000,
+      padding: 15
     },
-    currentLocationName: {
-      textAlign: "center",
-      fontSize: 16,
-      marginTop: 30
-    }
+    date: { fontSize: 12, color: "rgba(0,0,0,0.7)" }
   });
 }

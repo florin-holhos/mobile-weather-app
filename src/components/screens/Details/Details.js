@@ -1,13 +1,10 @@
 import React, { Component } from "react";
 import { Text, View, StyleSheet } from "react-native";
-import {
-  ScrollView,
-  TouchableHighlight,
-  TouchableOpacity
-} from "react-native-gesture-handler";
+import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
 import { Ionicons } from "@expo/vector-icons";
 import WeatherContainer from "../../WeatherContainer";
 import { LocationContext } from "../../LocationContext";
+import Header from "../../Header";
 export default class Details extends Component {
   state = {
     weather: null
@@ -15,12 +12,10 @@ export default class Details extends Component {
 
   static contextType = LocationContext;
 
-  static navigationOptions = ({ navigation }) => ({
-    title: `${navigation.state.params.location.name}`
-  });
-
-  handleRemove = location => {
-    this.context.removeLocation(location);
+  static navigationOptions = {
+    headerStyle: {
+      display: "none"
+    }
   };
 
   render() {
@@ -29,18 +24,8 @@ export default class Details extends Component {
     return (
       <ScrollView>
         <View style={this.styles.container}>
-          <View style={this.styles.headerContainer}>
-            <Text style={this.styles.now}>Now</Text>
-            <TouchableOpacity
-              style={this.styles.removeBtn}
-              onPress={() => {
-                this.handleRemove(location);
-                navigation.navigate("Home");
-              }}
-            >
-              <Ionicons name="md-trash" size={40} />
-            </TouchableOpacity>
-          </View>
+          <Header navigation={navigation} location={location} />
+          <Text style={{ fontSize: 12, color: "rgba(0,0,0,0.7)" }}>Now</Text>
           {location && <WeatherContainer location={location} />}
         </View>
       </ScrollView>
@@ -49,24 +34,7 @@ export default class Details extends Component {
   styles = StyleSheet.create({
     container: {
       padding: 15,
-      height: 1200,
-      backgroundColor: "#eee"
-    },
-    headerContainer: {
-      marginBottom: -30,
-      display: "flex",
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between"
-    },
-    now: {
-      fontWeight: "bold",
-      fontSize: 22
-    },
-    removeBtn: {
-      padding: 20,
-      marginRight: -20,
-      zIndex: 2
+      height: 1000
     }
   });
 }

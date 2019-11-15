@@ -9,9 +9,11 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { searchAutocomplete } from "../services/searchAutocomplete";
+import { LocationContext } from "../components/LocationContext";
 import uuid4 from "uuid4";
 
-export default class SearchBarComponent extends Component {
+export default class SearchBar extends Component {
+  static contextType = LocationContext;
   constructor() {
     super();
     this.state = {
@@ -47,19 +49,19 @@ export default class SearchBarComponent extends Component {
     }
 
     // get the navigation from props
-    const { navigate } = this.props;
+    const navigation = this.props.navigation;
 
     // check if location already exists
-    if (this.props.locations) {
-      const loc = this.props.locations.find(loc => loc.name === item.name);
+    if (this.context.locations) {
+      const loc = this.context.locations.find(loc => loc.name === item.name);
       if (loc) {
-        return navigate("Details", { location: item });
+        return navigation.push("Details", { location: item });
       }
     }
     // add an id to this location if it's new
     item.id = uuid4();
-    navigate("Details", { location: item });
-    this.props.updateLocations(item);
+    navigation.push("Details", { location: item });
+    this.context.updateLocations(item);
   };
 
   // fetch for suggestions
@@ -123,16 +125,13 @@ export default class SearchBarComponent extends Component {
   styles = StyleSheet.create({
     container: {
       width: "100%",
-      marginTop: 30
+      marginTop: -52
     },
     search: {
       display: "flex",
       flexDirection: "row",
       alignItems: "center",
-      backgroundColor: "#fff",
-      borderRadius: 5,
-      elevation: 4,
-      paddingLeft: 10
+      borderBottomWidth: 2
     },
     input: {
       flexGrow: 0.99,
@@ -143,14 +142,13 @@ export default class SearchBarComponent extends Component {
     autocompleteList: {
       position: "absolute",
       backgroundColor: "#fff",
-      marginTop: 46,
+      marginTop: 50,
       width: "100%",
       maxHeight: 300,
-      borderTopWidth: 1,
-      borderTopColor: "#eee",
+      borderTopWidth: 2,
       borderBottomRightRadius: 5,
       borderBottomLeftRadius: 5,
-      elevation: Platform.OS === "android" ? 4 : 0,
+      elevation: Platform.OS === "android" ? 3 : 0,
       zIndex: 1
     },
     listItem: {

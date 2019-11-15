@@ -41,7 +41,11 @@ export default class WeatherContainer extends Component {
     return (
       <>
         {loading && (
-          <ActivityIndicator size="large" color="#0000ff" style={{ flex: 1 }} />
+          <ActivityIndicator
+            size="large"
+            color="#0000ff"
+            style={{ translateY: 100 }}
+          />
         )}
         {weather && (
           <ScrollView style={this.styles.container}>
@@ -51,79 +55,43 @@ export default class WeatherContainer extends Component {
                 resizeMode="cover"
                 source={images.weather[weather.currently.icon]}
               />
-              <Text style={{ fontSize: 22, marginTop: 10, fontWeight: "bold" }}>
-                {weather.currently.summary}
+
+              <Text style={this.styles.temp}>
+                {Math.round(weather.currently.temperature)}&#176;
               </Text>
-              <Text style={{ fontSize: 120 }}>
-                {Math.round(weather.currently.temperature)}&#176;C
+              <Text
+                style={{ fontSize: 12, fontWeight: "bold", color: "#e94c89" }}
+              >
+                {weather.currently.summary}
               </Text>
             </View>
 
             {/**@details */}
 
             <View style={this.styles.details}>
-              <View style={this.styles.sectionHeader}>
-                <Text style={{ fontSize: 16 }}>Details</Text>
-                <View style={this.styles.hr} />
+              <View style={this.styles.infoItem}>
+                <Text style={this.styles.infoText}>
+                  {Math.round(weather.currently.windSpeed)}km/h
+                </Text>
+                <Text style={this.styles.info}>Wind</Text>
               </View>
-              <View style={this.styles.section}>
-                <View style={this.styles.sectionItem}>
-                  <Text>Icon</Text>
-                  <Text style={this.styles.sectionInnerText}>Feels like</Text>
-                  <Text style={this.styles.sectionInfo}>
-                    {Math.round(weather.currently.apparentTemperature)}&#176;C
-                  </Text>
-                </View>
-                <View style={this.styles.sectionItem}>
-                  <Text>Icon</Text>
-                  <Text style={this.styles.sectionInnerText}>Wind</Text>
-                  <Text style={this.styles.sectionInfo}>
-                    {Math.round(weather.currently.windSpeed)} km/h
-                  </Text>
-                </View>
-                <View style={this.styles.sectionItem}>
-                  <Text>Icon</Text>
-                  <Text style={this.styles.sectionInnerText}>Humidity</Text>
-                  <Text style={this.styles.sectionInfo}>
-                    {weather.currently.humidity * 100}%
-                  </Text>
-                </View>
+              <View style={this.styles.infoItem}>
+                <Text style={this.styles.infoText}>
+                  {Math.round(weather.currently.humidity)}%
+                </Text>
+                <Text style={this.styles.info}>Humidity</Text>
               </View>
-              <View style={this.styles.section}>
-                <View style={this.styles.sectionItem}>
-                  <Text>Icon</Text>
-                  <Text style={this.styles.sectionInnerText}>Pressure</Text>
-                  <Text style={this.styles.sectionInfo}>
-                    {weather.currently.pressure} hPa
-                  </Text>
-                </View>
-                <View style={this.styles.sectionItem}>
-                  <Text>Icon</Text>
-                  <Text style={this.styles.sectionInnerText}>Visibility</Text>
-                  <Text style={this.styles.sectionInfo}>
-                    {Math.round(weather.currently.visibility)}km
-                  </Text>
-                </View>
-                <View style={this.styles.sectionItem}>
-                  <Text>Icon</Text>
-                  <Text style={this.styles.sectionInnerText}>
-                    Chances of rain
-                  </Text>
-                  <Text style={this.styles.sectionInfo}>
-                    {Math.round(weather.currently.precipProbability * 100)}%
-                  </Text>
-                </View>
+              <View style={this.styles.infoItem}>
+                <Text style={this.styles.infoText}>
+                  {Math.round(weather.today.temperatureHigh)}&#176;
+                </Text>
+                <Text style={this.styles.info}>Maximum</Text>
               </View>
             </View>
 
             {/**@forecast */}
 
-            <View style={[this.styles.forecast, { marginTop: 30 }]}>
-              <View style={this.styles.sectionHeader}>
-                <Text style={{ fontSize: 16 }}>Next 4 days</Text>
-                <View style={this.styles.hr} />
-              </View>
-            </View>
+            <View style={[this.styles.forecast, { marginTop: 30 }]}></View>
           </ScrollView>
         )}
       </>
@@ -134,54 +102,32 @@ export default class WeatherContainer extends Component {
     weather: {
       display: "flex",
       flexDirection: "column",
-      justifyContent: "center",
-      alignItems: "center",
-      marginTop: 20
-    },
-    weatherImg: {
-      width: Dimensions.get("window").width * 0.8,
-      overflow: "visible",
-      height: 200
-    },
-    sectionHeader: {
-      marginTop: 10,
-      display: "flex",
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between"
-    },
-    hr: {
-      backgroundColor: "#222",
-      height: 1,
-      flexGrow: 0.96
-    },
-    details: {
-      display: "flex"
-    },
-
-    section: {
-      display: "flex",
-      flexDirection: "row",
-      justifyContent: "space-between",
-      marginTop: 15
-    },
-    sectionItem: {
-      backgroundColor: "#ccc",
-      height: 110,
-      width: "30%",
-      borderRadius: 5,
-      display: "flex",
-      justifyContent: "space-evenly",
       alignItems: "center"
     },
-    sectionInnerText: {
-      fontSize: 12
+    weatherImg: {
+      marginTop: 30,
+      marginBottom: 15,
+      width: Dimensions.get("window").width * 0.6,
+      overflow: "visible",
+      height: 150
     },
-    sectionInfo: {
-      fontWeight: "bold"
+    temp: {
+      fontSize: 60,
+      marginRight: -18
     },
-    forecast: {
-      display: "flex"
+    details: {
+      marginTop: 50,
+      display: "flex",
+      flexDirection: "row",
+      justifyContent: "space-evenly"
+    },
+    infoItem: {
+      alignItems: "center"
+    },
+    info: { fontSize: 12, color: "rgba(0,0,0,0.7)", marginTop: 5 },
+    infoText: {
+      fontWeight: "bold",
+      fontSize: 18
     }
   });
 }

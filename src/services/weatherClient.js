@@ -20,16 +20,19 @@ export const getWeather = async (lat, long) => {
     );
 
     // format response
-    const weather = response.data;
-    const currently = weather.currently;
-    const forecast = weather.daily.data.slice(1, 5).map(day => {
+    const data = response.data;
+    const weather = data.daily.data.slice(0, 5).map(day => {
       return {
         ...day,
         dayOfWeek: days[new Date(day.time * 1000).getDay()]
       };
     });
 
-    return { currently: currently, forecast: forecast };
+    return {
+      currently: data.currently,
+      today: weather[0],
+      forecast: weather.slice(1, 5)
+    };
   } catch (err) {
     console.log(err);
     return null;
