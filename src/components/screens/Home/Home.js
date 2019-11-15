@@ -2,10 +2,7 @@ import React, { Component, useContext } from "react";
 import { Text, View, StyleSheet, ActivityIndicator } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 
-// current location setup
-import * as Location from "expo-location";
-import * as Permissions from "expo-permissions";
-import { getAddress } from "../../../services/reverseGeocoding";
+import { getLocationAsync } from "../../../services/reverseGeocoding";
 
 // components
 import WeatherContainer from "../../WeatherContainer";
@@ -25,42 +22,19 @@ export default class Home extends Component {
     this.state = {
       location: null,
       loading: true,
-      date: null
+      date: null,
+      errorMessage: null
     };
     this.timeout = null; // initialize in updateTime method
   }
 
-  componentDidMount() {
-    this.getLocationAsync();
+  async componentDidMount() {
     this.updateDate();
-  }
-
-  componentWillUnmount() {
-    // remove timer on unmount
-    clearTimeout(this.timeout);
-  }
-
-  // get current location
-  getLocationAsync = async () => {
-    let { status } = await Permissions.askAsync(Permissions.LOCATION);
-    if (status !== "granted") {
-      this.setState({ loading: false });
+    const location = await getLocationAsync();
+    if (!location)
       return this.setState({
         errorMessage: "Permission to access location was denied"
       });
-    }
-
-    const position = await Location.getCurrentPositionAsync({});
-    const { latitude, longitude } = position.coords;
-    const address = await getAddress(latitude, longitude);
-    const location = {
-      name: address.village || address.city,
-      lat: latitude,
-      lon: longitude
-    };
-
-    // generate id
-    location.id = uuid4();
 
     this.setState({
       location: location,
@@ -68,7 +42,12 @@ export default class Home extends Component {
     });
     // update context
     this.context.updateLocations(location);
-  };
+  }
+
+  componentWillUnmount() {
+    // remove timer on unmount
+    clearTimeout(this.timeout);
+  }
 
   // get current time
   updateDate = () => {

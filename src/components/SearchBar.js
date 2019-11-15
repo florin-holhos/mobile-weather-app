@@ -38,11 +38,19 @@ export default class SearchBar extends Component {
 
   handleSearch = item => {
     if (!item) return;
+    // format the name if it's too long
+    let { name } = item;
+    item.name = name.length > 36 ? name.slice(0, 36) + "..." : name;
     // clear the suggestions list when user selects one
     this.setState({ inputValue: item.name, suggestions: null });
 
     // check if location is valid
-    const valid = item.lat !== "-9999.000000" && item.lon !== "-9999.000000";
+    valid =
+      item.lat !== "-9999.000000" &&
+      item.lon !== "-9999.000000" &&
+      item.lat &&
+      item.lon;
+
     if (!valid) {
       const error = true;
       return this.setState({ error, suggestions: null });
