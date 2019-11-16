@@ -6,7 +6,9 @@ export default class LocationProvider extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      locations: null
+      locations: [],
+      backgroundColor: "#fff",
+      foregroundColor: "#000"
     };
   }
 
@@ -16,10 +18,15 @@ export default class LocationProvider extends Component {
     //console.log(this.state.locations);
   }
 
+  setDayTime = dayTime => {
+    if (dayTime === "night")
+      this.setState({ backgroundColor: "#33283b", foregroundColor: "#fff" });
+    if (dayTime === "day")
+      this.setState({ backgroundColor: "#fff", foregroundColor: "#000" });
+  };
+
   updateLocations = location => {
-    let { locations } = this.state;
-    locations = locations ? [...locations, location] : [location];
-    this.setState({ locations });
+    this.setState({ locations: [...this.state.locations, location] });
   };
 
   removeLocation = location => {
@@ -33,13 +40,16 @@ export default class LocationProvider extends Component {
 
   render() {
     const { children } = this.props;
-    const { locations } = this.state;
+    const { locations, backgroundColor, foregroundColor } = this.state;
     return (
       <LocationContext.Provider
         value={{
           locations: locations,
           updateLocations: this.updateLocations,
-          removeLocation: this.removeLocation
+          removeLocation: this.removeLocation,
+          setDayTime: this.setDayTime,
+          backgroundColor: backgroundColor,
+          foregroundColor: foregroundColor
         }}
       >
         {children}

@@ -1,42 +1,85 @@
 import React, { Component } from "react";
 import SearchBar from "./SearchBar";
 import { View, StyleSheet, Text } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, AntDesign } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import { LocationContext } from "./LocationContext";
+
 export default class Header extends Component {
   state = {
     show: false
   };
 
+  static contextType = LocationContext;
+
   toggleSearchBar = () => this.setState({ show: !this.state.show });
 
   render() {
-    const { navigation, location } = this.props;
+    const { foregroundColor } = this.context;
+    const { navigation, location, toggleSideMenu } = this.props;
     const { show } = this.state;
     return (
-      <View style={this.styles.headerContainer}>
-        {show && <SearchBar navigation={navigation} />}
-        <View
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between"
-          }}
-        >
-          <Text style={this.styles.location}>{location.name}</Text>
-          <TouchableOpacity
+      <>
+        <View style={this.styles.headerContainer}>
+          {(show && <SearchBar navigation={navigation} />) || (
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+                position: "absolute",
+                width: "100%",
+                top: -60
+              }}
+            >
+              <TouchableOpacity
+                style={[this.styles.menu]}
+                onPress={toggleSideMenu}
+              >
+                <AntDesign
+                  name="menuunfold"
+                  size={32}
+                  color={foregroundColor}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={this.styles.home}
+                onPress={() => {
+                  navigation.push("Home");
+                }}
+              >
+                <AntDesign name="home" size={32} color={foregroundColor} />
+              </TouchableOpacity>
+            </View>
+          )}
+          <View
             style={{
-              padding: 10,
-              marginRight: -10,
-              marginBottom: -10
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between"
             }}
-            onPress={this.toggleSearchBar}
           >
-            <Ionicons name={show ? "md-close" : "md-search"} size={32} />
-          </TouchableOpacity>
+            <Text style={[this.styles.location, { color: foregroundColor }]}>
+              {location.name}
+            </Text>
+            <TouchableOpacity
+              style={{
+                padding: 10,
+                marginRight: -10,
+                marginBottom: -10
+              }}
+              onPress={this.toggleSearchBar}
+            >
+              <Ionicons
+                name={show ? "md-close" : "md-search"}
+                size={32}
+                color={foregroundColor}
+              />
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
+      </>
     );
   }
 
@@ -45,8 +88,16 @@ export default class Header extends Component {
       marginTop: 80
     },
     location: {
-      fontSize: 22,
+      fontSize: 24,
       maxWidth: 280
+    },
+    home: {
+      padding: 10,
+      right: -10
+    },
+    menu: {
+      padding: 10,
+      left: -10
     }
   });
 }

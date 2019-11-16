@@ -63,7 +63,7 @@ export default class SearchBar extends Component {
     if (this.context.locations) {
       const loc = this.context.locations.find(loc => loc.name === item.name);
       if (loc) {
-        return navigation.push("Details", { location: item });
+        return navigation.navigate("Details", { location: item });
       }
     }
     // add an id to this location if it's new
@@ -93,15 +93,16 @@ export default class SearchBar extends Component {
 
   render() {
     const { inputValue, suggestions, error } = this.state;
+    const { backgroundColor, foregroundColor } = this.context;
     return (
       <View style={this.styles.container}>
-        <View style={this.styles.search}>
+        <View style={[this.styles.search, { borderColor: foregroundColor }]}>
           <Ionicons name="md-search" size={22} color="#ccc" />
           <TextInput
             style={[
               this.styles.input,
               {
-                color: error ? "red" : "#222",
+                color: error ? "red" : foregroundColor,
                 textDecorationLine: error ? "line-through" : "none"
               }
             ]}
@@ -113,12 +114,15 @@ export default class SearchBar extends Component {
         {suggestions && (
           <FlatList
             nestedScrollEnabled={true}
-            style={this.styles.autocompleteList}
+            style={[
+              this.styles.autocompleteList,
+              { backgroundColor: backgroundColor, borderColor: foregroundColor }
+            ]}
             data={suggestions}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({ item }) => (
               <Text
-                style={this.styles.listItem}
+                style={[this.styles.listItem, { color: foregroundColor }]}
                 onPress={() => this.handleSearch(item)}
               >
                 {item.name}
@@ -149,7 +153,6 @@ export default class SearchBar extends Component {
     },
     autocompleteList: {
       position: "absolute",
-      backgroundColor: "#fff",
       marginTop: 50,
       width: "100%",
       maxHeight: 300,
