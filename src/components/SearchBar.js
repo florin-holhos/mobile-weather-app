@@ -38,9 +38,7 @@ export default class SearchBar extends Component {
 
   handleSearch = item => {
     if (!item) return;
-    // format the name if it's too long
-    let { name } = item;
-    item.name = name.length > 36 ? name.slice(0, 36) + "..." : name;
+
     // clear the suggestions list when user selects one
     this.setState({ inputValue: item.name, suggestions: null });
 
@@ -108,7 +106,11 @@ export default class SearchBar extends Component {
             ]}
             placeholder="Search for location..."
             onChangeText={this.update}
-            value={inputValue}
+            value={
+              String(inputValue).length > 36
+                ? String(inputValue).slice(0, 36) + "..."
+                : String(inputValue)
+            }
           />
         </View>
         {suggestions && (

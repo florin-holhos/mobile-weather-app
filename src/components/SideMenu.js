@@ -1,5 +1,5 @@
 import React, { Component, useContext } from "react";
-import { View, StyleSheet, Text } from "react-native";
+import { View, StyleSheet, Text, Animated } from "react-native";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { LocationContext } from "./LocationContext";
 import {
@@ -10,8 +10,9 @@ import {
 
 export default function SideMenu({ toggleSideMenu }) {
   const { locations } = useContext(LocationContext);
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { transform: [{ translateX: -100 }] }]}>
       <ScrollView style={styles.listWrapper}>
         <View style={styles.header}>
           <Text style={styles.headerText}>My Locations</Text>
@@ -28,11 +29,11 @@ export default function SideMenu({ toggleSideMenu }) {
             renderItem={({ item }) => (
               <View style={styles.item}>
                 <TouchableOpacity onPress={() => console.log(item)}>
-                  <Text style={styles.listItem}>{item.name}</Text>
+                  <Text style={styles.itemText}>{item.name}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  onPress={() => console.log("delete" + item.name)}
-                  style={styles.closeMenu}
+                  onPress={() => console.log("delete => " + item.name)}
+                  style={styles.removeLocation}
                 >
                   <Ionicons name="md-close" size={22} color="#fff" />
                 </TouchableOpacity>
@@ -59,11 +60,11 @@ const styles = StyleSheet.create({
     flexDirection: "row"
   },
   overlay: {
-    flexGrow: 0.3,
+    width: "20%",
     backgroundColor: "rgba(0,0,0,0.6)"
   },
   listWrapper: {
-    flexGrow: 0.7,
+    width: "80%",
     paddingTop: 30,
     paddingLeft: 15,
     paddingRight: 15,
@@ -83,9 +84,12 @@ const styles = StyleSheet.create({
     paddingTop: 30,
     paddingBottom: 50
   },
-  listItem: {
-    fontSize: 20,
-    color: "#fff"
+  itemText: {
+    fontSize: 16,
+    color: "#fff",
+    paddingTop: 5,
+    paddingBottom: 5,
+    maxWidth: 230
   },
   closeMenu: {
     padding: 15,
@@ -100,8 +104,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     width: "100%",
+    height: 50,
     marginBottom: 20,
     borderBottomWidth: 2,
     borderColor: "#fff"
+  },
+  removeLocation: {
+    padding: 5,
+    right: -5
   }
 });

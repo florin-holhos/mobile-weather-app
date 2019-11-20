@@ -1,7 +1,6 @@
 import React, { Component } from "react";
-import { Text, View, StyleSheet } from "react-native";
-import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
-import { Ionicons } from "@expo/vector-icons";
+import { Text, View, StyleSheet, Animated } from "react-native";
+import { ScrollView } from "react-native-gesture-handler";
 
 // components
 import WeatherContainer from "../../WeatherContainer";
@@ -10,7 +9,8 @@ import Header from "../../Header";
 import SideMenu from "../../SideMenu";
 export default class Details extends Component {
   state = {
-    isToggledOn: false
+    isToggledOn: false,
+    x: new Animated.Value(-100)
   };
 
   static contextType = LocationContext;
@@ -19,6 +19,15 @@ export default class Details extends Component {
     headerStyle: {
       display: "none"
     }
+  };
+
+  slide = () => {
+    Animated.spring(this.state.x, {
+      toValue: 0
+    }).start();
+    this.setState({
+      visible: true
+    });
   };
 
   toggleSideMenu = () =>
@@ -31,7 +40,19 @@ export default class Details extends Component {
     const { backgroundColor, foregroundColor } = this.context;
     return (
       <>
-        {isToggledOn && <SideMenu toggleSideMenu={this.toggleSideMenu} />}
+        {isToggledOn && (
+          <Animated.View
+            style={{
+              transform: [
+                {
+                  translateX: this.state.x
+                }
+              ]
+            }}
+          >
+            <SideMenu toggleSideMenu={this.toggleSideMenu} />
+          </Animated.View>
+        )}
         <ScrollView style={{ backgroundColor: backgroundColor }}>
           <View style={this.styles.container}>
             <Header

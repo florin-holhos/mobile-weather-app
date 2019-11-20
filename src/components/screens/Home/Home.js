@@ -1,5 +1,11 @@
 import React, { Component, useContext } from "react";
-import { Text, View, StyleSheet, ActivityIndicator } from "react-native";
+import {
+  Text,
+  View,
+  StyleSheet,
+  ActivityIndicator,
+  Animated
+} from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 
 import { getLocationAsync } from "../../../services/reverseGeocoding";
@@ -25,7 +31,8 @@ export default class Home extends Component {
       loading: true,
       date: null,
       errorMessage: null,
-      isToggledOn: false
+      isToggledOn: false,
+      x: new Animated.Value(-100)
     };
   }
 
@@ -77,8 +84,9 @@ export default class Home extends Component {
     return this.setState({ date });
   };
 
-  toggleSideMenu = () =>
+  toggleSideMenu = () => {
     this.setState({ isToggledOn: !this.state.isToggledOn });
+  };
 
   render() {
     const { location, date, isToggledOn } = this.state;
@@ -86,7 +94,7 @@ export default class Home extends Component {
     const { backgroundColor, foregroundColor } = this.context;
     return (
       <>
-        {isToggledOn && <SideMenu toggleSideMenu={this.toggleSideMenu} />}
+        {<SideMenu toggleSideMenu={this.toggleSideMenu} />}
         {(navigation && location && (
           <ScrollView style={{ backgroundColor: backgroundColor }}>
             <View style={this.styles.container}>
