@@ -9,8 +9,7 @@ import Header from "../../Header";
 import SideMenu from "../../SideMenu";
 export default class Details extends Component {
   state = {
-    isToggledOn: false,
-    x: new Animated.Value(-100)
+    isToggledOn: false
   };
 
   static contextType = LocationContext;
@@ -19,15 +18,6 @@ export default class Details extends Component {
     headerStyle: {
       display: "none"
     }
-  };
-
-  slide = () => {
-    Animated.spring(this.state.x, {
-      toValue: 0
-    }).start();
-    this.setState({
-      visible: true
-    });
   };
 
   toggleSideMenu = () =>
@@ -40,19 +30,11 @@ export default class Details extends Component {
     const { backgroundColor, foregroundColor } = this.context;
     return (
       <>
-        {isToggledOn && (
-          <Animated.View
-            style={{
-              transform: [
-                {
-                  translateX: this.state.x
-                }
-              ]
-            }}
-          >
-            <SideMenu toggleSideMenu={this.toggleSideMenu} />
-          </Animated.View>
-        )}
+        <SideMenu
+          toggleSideMenu={this.toggleSideMenu}
+          isToggledOn={isToggledOn}
+          navigation={navigation}
+        />
         <ScrollView style={{ backgroundColor: backgroundColor }}>
           <View style={this.styles.container}>
             <Header

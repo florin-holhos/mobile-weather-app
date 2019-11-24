@@ -1,7 +1,12 @@
 import React, { Component } from "react";
 import SearchBar from "./SearchBar";
 import { View, StyleSheet, Text } from "react-native";
-import { Ionicons, AntDesign } from "@expo/vector-icons";
+import {
+  Ionicons,
+  AntDesign,
+  SimpleLineIcons,
+  Entypo
+} from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { LocationContext } from "./LocationContext";
 
@@ -36,9 +41,9 @@ export default class Header extends Component {
                 style={[this.styles.menu]}
                 onPress={toggleSideMenu}
               >
-                <AntDesign
-                  name="menuunfold"
-                  size={32}
+                <SimpleLineIcons
+                  name="menu"
+                  size={24}
                   color={foregroundColor}
                 />
               </TouchableOpacity>
@@ -48,7 +53,7 @@ export default class Header extends Component {
                   navigation.push("Home");
                 }}
               >
-                <AntDesign name="home" size={32} color={foregroundColor} />
+                <AntDesign name="home" size={28} color={foregroundColor} />
               </TouchableOpacity>
             </View>
           )}
@@ -63,6 +68,7 @@ export default class Header extends Component {
             <Text style={[this.styles.location, { color: foregroundColor }]}>
               {location.name}
             </Text>
+
             <TouchableOpacity
               style={{
                 padding: 10,

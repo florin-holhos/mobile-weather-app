@@ -11,6 +11,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { searchAutocomplete } from "../services/searchAutocomplete";
 import { LocationContext } from "../components/LocationContext";
 import uuid4 from "uuid4";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 export default class SearchBar extends Component {
   static contextType = LocationContext;
@@ -38,7 +39,6 @@ export default class SearchBar extends Component {
 
   handleSearch = item => {
     if (!item) return;
-
     // clear the suggestions list when user selects one
     this.setState({ inputValue: item.name, suggestions: null });
 
@@ -56,12 +56,12 @@ export default class SearchBar extends Component {
 
     // get the navigation from props
     const navigation = this.props.navigation;
-
+    const { locations } = this.context;
     // check if location already exists
-    if (this.context.locations) {
-      const loc = this.context.locations.find(loc => loc.name === item.name);
+    if (locations.length) {
+      const loc = locations.find(loc => loc.name === item.name);
       if (loc) {
-        return navigation.navigate("Details", { location: item });
+        return navigation.push("Details", { location: item });
       }
     }
     // add an id to this location if it's new
@@ -123,12 +123,13 @@ export default class SearchBar extends Component {
             data={suggestions}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({ item }) => (
-              <Text
-                style={[this.styles.listItem, { color: foregroundColor }]}
-                onPress={() => this.handleSearch(item)}
-              >
-                {item.name}
-              </Text>
+              <TouchableOpacity onPress={() => this.handleSearch(item)}>
+                <Text
+                  style={[this.styles.listItem, { color: foregroundColor }]}
+                >
+                  {item.name}
+                </Text>
+              </TouchableOpacity>
             )}
           />
         )}

@@ -1,6 +1,6 @@
-import React, { Component, useContext } from "react";
-import { View, StyleSheet, Text, Animated } from "react-native";
-import { AntDesign, Ionicons } from "@expo/vector-icons";
+import React, { useState, useContext } from "react";
+import { View, StyleSheet, Text, Animated, Dimensions } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { LocationContext } from "./LocationContext";
 import {
   FlatList,
@@ -8,12 +8,30 @@ import {
   TouchableOpacity
 } from "react-native-gesture-handler";
 
-export default function SideMenu({ toggleSideMenu }) {
-  const { locations } = useContext(LocationContext);
+export default function SideMenu({ toggleSideMenu, isToggledOn, navigation }) {
+  const [state, setState] = useState({
+    translateX: new Animated.Value(-Dimensions.get("window").width - 20)
+  });
+  const { locations, removeLocation } = useContext(LocationContext);
+
+  slide = () => {
+    Animated.timing(state.translateX, {
+      toValue: isToggledOn ? 0 : -Dimensions.get("window").width - 20,
+      duration: 100,
+      useNativeDriver: true
+    }).start();
+  };
+
+  // slide menu when toggle between on and off
+  slide();
 
   return (
-    <View style={[styles.container, { transform: [{ translateX: -100 }] }]}>
-      <ScrollView style={styles.listWrapper}>
+    <Animated.View style={[styles.container, { translateX: state.translateX }]}>
+      <ScrollView
+        style={styles.listWrapper}
+        scrollEventThrottle={1}
+        onScroll={Animated.event({ useNativeDriver: true })}
+      >
         <View style={styles.header}>
           <Text style={styles.headerText}>My Locations</Text>
           <TouchableOpacity onPress={toggleSideMenu} style={styles.closeMenu}>
@@ -27,17 +45,21 @@ export default function SideMenu({ toggleSideMenu }) {
             data={locations}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({ item }) => (
-              <View style={styles.item}>
-                <TouchableOpacity onPress={() => console.log(item)}>
+              <Animated.View style={styles.item}>
+                <TouchableOpacity
+                  onPress={() => {
+                    navigation.push("Details", { location: item });
+                  }}
+                >
                   <Text style={styles.itemText}>{item.name}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  onPress={() => console.log("delete => " + item.name)}
+                  onPress={() => removeLocation(item)}
                   style={styles.removeLocation}
                 >
                   <Ionicons name="md-close" size={22} color="#fff" />
                 </TouchableOpacity>
-              </View>
+              </Animated.View>
             )}
           />
         )) || (
@@ -47,7 +69,7 @@ export default function SideMenu({ toggleSideMenu }) {
         )}
       </ScrollView>
       <View style={styles.overlay} onTouchEnd={toggleSideMenu} />
-    </View>
+    </Animated.View>
   );
 }
 const styles = StyleSheet.create({
@@ -60,11 +82,14 @@ const styles = StyleSheet.create({
     flexDirection: "row"
   },
   overlay: {
-    width: "20%",
-    backgroundColor: "rgba(0,0,0,0.6)"
+    width: "100%",
+    backgroundColor: "rgba(0,0,0,0.5)"
   },
   listWrapper: {
-    width: "80%",
+    position: "absolute",
+    zIndex: 4,
+    width: 302,
+    height: "100%",
     paddingTop: 30,
     paddingLeft: 15,
     paddingRight: 15,
@@ -89,7 +114,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     paddingTop: 5,
     paddingBottom: 5,
-    maxWidth: 230
+    width: 240
   },
   closeMenu: {
     padding: 15,

@@ -42,6 +42,7 @@ export default class WeatherContainer extends Component {
   render() {
     const { weather } = this.state;
     const { backgroundColor, foregroundColor } = this.context;
+    // console.log(weather);
     return (
       <>
         {(weather && (

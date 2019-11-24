@@ -1,4 +1,6 @@
 import React, { Component } from "react";
+import WeatherService from "../services/weatherService";
+import Storage from "../services/storageService";
 
 export const LocationContext = React.createContext();
 
@@ -10,13 +12,26 @@ export default class LocationProvider extends Component {
       backgroundColor: "#fff",
       foregroundColor: "#000"
     };
+    this.storage = new Storage();
+    this.weatherService = new WeatherService();
   }
 
-  componentDidMount() {}
-
-  componentDidUpdate() {
-    //console.log(this.state.locations);
+  componentDidMount() {
+    this.getLocationsFromStorage();
   }
+
+  getLocationsFromStorage = async () => {
+    const locations = await this.storage.getItem("USER_LOCATIONS");
+    if (locations && locations.length) {
+      this.setState({ locations });
+      this.updateWeatherForeach(locations);
+    }
+  };
+
+  // cache weather infos for locations to improve loading time
+  updateWeatherForeach = async locations => {
+    //await this.weatherService.getWeatherForeach(locations);
+  };
 
   setDayTime = dayTime => {
     if (dayTime === "night")
@@ -25,22 +40,30 @@ export default class LocationProvider extends Component {
       this.setState({ backgroundColor: "#fff", foregroundColor: "#000" });
   };
 
-  updateLocations = location => {
-    this.setState({ locations: [...this.state.locations, location] });
+  updateLocations = async location => {
+    const locations = [...this.state.locations, location];
+    this.setState({ locations });
+    await this.storage.setItem("USER_LOCATIONS", locations);
   };
 
-  removeLocation = location => {
+  removeLocation = async location => {
     // remove from state
     const locations = this.state.locations.filter(
       loc => loc.id !== location.id
     );
     this.setState({ locations });
     // remove from storage
+    this.storage.setItem("USER_LOCATIONS", locations);
   };
 
   render() {
     const { children } = this.props;
-    const { locations, backgroundColor, foregroundColor } = this.state;
+    const {
+      locations,
+      backgroundColor,
+      foregroundColor,
+      currentLocation
+    } = this.state;
     return (
       <LocationContext.Provider
         value={{
