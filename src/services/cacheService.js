@@ -1,30 +1,44 @@
 import Storage from "./storageService";
 
 /**@threshold => time in seconds */
-class Cache extends Storage {
+export default class Cache {
   constructor(threshold) {
-    super();
+    this.storage = new Storage();
     this.threshold = threshold * 1000;
   }
 
   setItems = async (key, value) => {
-    const expTime = new Date().getTime() + this.threshold;
-    await super.getItem(key, { ...value, expTime });
+    console.log(this.storage.setItem);
+    // const expTime = new Date().getTime() + this.threshold;
+    // try {
+    //   await super.setItem(key, { ...value, expTime });
+    // } catch (error) {
+    //   console.log(error);
+    // }
   };
 
   getItems = async key => {
-    const items = await super.getItem(key);
-    if (items.length === 0) return null;
+    let items = null;
+    try {
+      items = await this.storage.getItem(key);
+    } catch (error) {
+      console.log("Error when trying to get the items");
+      return null;
+    }
+
+    if (!items || items.length === 0) return null;
     if (items.expTime < new Date().getTime()) {
-      await super.removeItem(key);
+      this.removeItem(key);
       return null;
     }
     return items;
   };
 
   removeItems = async key => {
-    await super.removeItem(key);
+    try {
+      await this.storage.removeItem(key);
+    } catch (error) {
+      console.log("Error when trying to remove item...");
+    }
   };
 }
-
-export default Cache;

@@ -102,6 +102,16 @@ export default class WeatherContainer extends Component {
                   Maximum
                 </Text>
               </View>
+              <View style={this.styles.infoItem}>
+                <Text
+                  style={[this.styles.infoText, { color: foregroundColor }]}
+                >
+                  {Math.round(weather.today.temperatureLow)}&#176;
+                </Text>
+                <Text style={[this.styles.info, { color: foregroundColor }]}>
+                  Minimum
+                </Text>
+              </View>
             </View>
 
             {/**@forecast */}

@@ -54,16 +54,11 @@ export default class Home extends Component {
     this.setState({ location });
 
     // check if current location is valid
-    this.checkCurrentLocation(location);
-  };
-
-  checkCurrentLocation = async location => {
     const deviceLocation = await getLocationAsync();
-    if (location.name !== deviceLocation.name) {
-      // change the current location
-      this.setState({ location: deviceLocation });
-      await this.storage.setItem(CURRENT_LOCATION, deviceLocation);
-    }
+    return location.name !== deviceLocation.name
+      ? this.setState({ location: deviceLocation }) &&
+          (await this.storage.setItem(CURRENT_LOCATION, deviceLocation))
+      : false;
   };
 
   // get current time
@@ -93,7 +88,7 @@ export default class Home extends Component {
       "December"
     ];
     let date = new Date();
-    date = `${days[date.getDay()]} ${date.getDate()} ${
+    date = `${days[date.getDay()]}, ${date.getDate()} ${
       months[date.getMonth()]
     } ${date.getFullYear()}`;
     return this.setState({ date });

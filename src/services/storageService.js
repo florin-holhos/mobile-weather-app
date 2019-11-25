@@ -1,11 +1,5 @@
 import { AsyncStorage } from "react-native";
-
-/** Storage class provides services for storing
- data into @LocalStorage and @SessionStorage **/
-
-/**@constructor creates a new instance based on parameter (sessionStorage, localStorage)*/
-/** default storage is localStorage */
-class Storage {
+export default class Storage {
   constructor() {
     this.store = AsyncStorage;
   }
@@ -23,7 +17,8 @@ class Storage {
   /**@getItems method returns stored data from the storage */
   getItem = async key => {
     try {
-      const data = JSON.parse(await this.store.getItem(key));
+      let data = await this.store.getItem(key);
+      data = JSON.parse(data);
       return data || null;
     } catch (error) {
       console.log(error);
@@ -35,5 +30,3 @@ class Storage {
     await this.store.removeItem(key);
   };
 }
-
-export default Storage;

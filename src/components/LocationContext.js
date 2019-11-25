@@ -28,9 +28,10 @@ export default class LocationProvider extends Component {
     }
   };
 
-  // cache weather infos for locations to improve loading time
+  // cache weather info for stored locations to improve loading time
   updateWeatherForeach = async locations => {
-    //await this.weatherService.getWeatherForeach(locations);
+    console.log(locations);
+    await this.weatherService.getWeatherForeach(locations);
   };
 
   setDayTime = dayTime => {
