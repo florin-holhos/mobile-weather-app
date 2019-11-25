@@ -1,100 +1,141 @@
-import React, { Component } from "react";
+import React, { Component, useContext } from "react";
 import { Text, View, StyleSheet, ActivityIndicator } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 
-// current location setup
-import * as Location from "expo-location";
-import * as Permissions from "expo-permissions";
-import { getAddress } from "../../../services/reverseGeocoding";
+// services
+import { getLocationAsync } from "../../../services/reverseGeocoding";
+import Storage from "../../../services/storageService";
 
 // components
-import Search from "../../Search";
 import WeatherContainer from "../../WeatherContainer";
-import { LinearGradient } from "expo-linear-gradient";
-
+import { LocationContext } from "../../LocationContext";
+import Header from "../../Header";
+import SideMenu from "../../SideMenu";
 export default class Home extends Component {
   static navigationOptions = {
     headerStyle: {
       display: "none"
     }
   };
+
+  static contextType = LocationContext;
+
   constructor() {
     super();
     this.state = {
-      locations: null, // will be updated in the future
-      currentLocation: null,
-      loading: true
+      location: null,
+      date: null,
+      errorMessage: null,
+      isToggledOn: false
     };
+    this.storage = new Storage();
   }
 
   componentDidMount() {
-    this.getLocationAsync();
+    this.updateHome();
   }
 
-  // get current location
-  getLocationAsync = async () => {
-    let { status } = await Permissions.askAsync(Permissions.LOCATION);
-    if (status !== "granted") {
-      this.setState({
-        errorMessage: "Permission to access location was denied"
-      });
+  updateHome = async () => {
+    this.updateDate();
+    const CURRENT_LOCATION = "CURRENT_LOCATION";
+    let location = await this.storage.getItem(CURRENT_LOCATION);
+
+    if (!location) {
+      location = await getLocationAsync();
+      if (!location)
+        return this.setState({
+          errorMessage: "Permission to access location was denied"
+        });
+      await this.storage.setItem(CURRENT_LOCATION, location);
     }
 
-    const location = await Location.getCurrentPositionAsync({});
-    const { latitude, longitude } = location.coords;
-    const address = await getAddress(latitude, longitude);
-    console.log(address);
-    this.setState({
-      currentLocation: {
-        name: `${address.village || address.city}, ${address.county}, ${
-          address.country
-        }`,
-        lat: latitude,
-        lon: longitude
-      },
-      loading: false
-    });
+    this.setState({ location });
+
+    // check if current location is valid
+    const deviceLocation = await getLocationAsync();
+    return location.name !== deviceLocation.name
+      ? this.setState({ location: deviceLocation }) &&
+          (await this.storage.setItem(CURRENT_LOCATION, deviceLocation))
+      : false;
   };
 
-  handleSearch = item => {
-    const { navigation } = this.props;
-    navigation.navigate("Details", { location: item });
+  // get current time
+  updateDate = () => {
+    const days = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday"
+    ];
+
+    const months = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December"
+    ];
+    let date = new Date();
+    date = `${days[date.getDay()]}, ${date.getDate()} ${
+      months[date.getMonth()]
+    } ${date.getFullYear()}`;
+    return this.setState({ date });
+  };
+
+  toggleSideMenu = () => {
+    this.setState({ isToggledOn: !this.state.isToggledOn });
   };
 
   render() {
-    const { currentLocation, loading } = this.state;
+    const { location, date, isToggledOn } = this.state;
+    const { navigation } = this.props;
+    const { backgroundColor, foregroundColor } = this.context;
     return (
-      <ScrollView>
-        <View style={this.styles.container}>
-          <Search handleSearch={this.handleSearch} />
-          {loading && (
-            <ActivityIndicator
-              size="large"
-              color="#0000ff"
-              style={{ marginTop: 40 }}
-            />
-          )}
-          {currentLocation && (
-            <Text style={this.styles.currentLocationName}>
-              {currentLocation.name}
-            </Text>
-          )}
-          {currentLocation && <WeatherContainer location={currentLocation} />}
-        </View>
-      </ScrollView>
+      <>
+        <SideMenu
+          toggleSideMenu={this.toggleSideMenu}
+          isToggledOn={isToggledOn}
+          navigation={navigation}
+        />
+        {(navigation && location && (
+          <ScrollView style={{ backgroundColor: backgroundColor }}>
+            <View style={this.styles.container}>
+              <Header
+                navigation={navigation}
+                location={location}
+                toggleSideMenu={this.toggleSideMenu}
+              />
+              <Text style={[this.styles.date, { color: foregroundColor }]}>
+                {date && date}
+              </Text>
+              <WeatherContainer location={location} />
+            </View>
+          </ScrollView>
+        )) || (
+          <ActivityIndicator
+            size="large"
+            color="#e94c89"
+            style={{ height: 220 }}
+          />
+        )}
+      </>
     );
   }
+
   styles = StyleSheet.create({
     container: {
-      height: 700,
-      padding: 10,
-      backgroundColor: "#eee"
+      padding: 15
     },
-    currentLocationName: {
-      textAlign: "center",
-      fontSize: 16,
-      marginTop: 40,
-      marginBottom: -20
-    }
+    date: { fontSize: 12, opacity: 0.6 }
   });
 }
