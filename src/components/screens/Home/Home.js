@@ -4,7 +4,6 @@ import { ScrollView } from "react-native-gesture-handler";
 
 // services
 import { getLocationAsync } from "../../../services/reverseGeocoding";
-import WeatherService from "../../../services/weatherService";
 import Storage from "../../../services/storageService";
 
 // components
@@ -29,7 +28,6 @@ export default class Home extends Component {
       errorMessage: null,
       isToggledOn: false
     };
-    this.weatherService = new WeatherService();
     this.storage = new Storage();
   }
 

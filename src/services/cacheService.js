@@ -1,23 +1,23 @@
 import Storage from "./storageService";
 
 /**@threshold => time in seconds */
+/**@default time is 19 min */
 export default class Cache {
   constructor(threshold) {
+    this.threshold = threshold ? threshold * 1000 : 19 * 60 * 1000;
     this.storage = new Storage();
-    this.threshold = threshold * 1000;
   }
 
-  setItems = async (key, value) => {
-    console.log(this.storage.setItem);
-    // const expTime = new Date().getTime() + this.threshold;
-    // try {
-    //   await super.setItem(key, { ...value, expTime });
-    // } catch (error) {
-    //   console.log(error);
-    // }
+  setItem = async (key, value) => {
+    const expTime = new Date().getTime() + this.threshold;
+    try {
+      await this.storage.setItem(key, { ...value, expTime });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  getItems = async key => {
+  getItem = async key => {
     let items = null;
     try {
       items = await this.storage.getItem(key);
@@ -34,7 +34,7 @@ export default class Cache {
     return items;
   };
 
-  removeItems = async key => {
+  removeItem = async key => {
     try {
       await this.storage.removeItem(key);
     } catch (error) {

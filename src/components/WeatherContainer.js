@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { images } from "../img/index";
-import { getWeather } from "../services/weatherClient";
+import weatherService from "../services/weatherService";
 import { LocationContext } from "./LocationContext";
 export default class WeatherContainer extends Component {
   constructor(props) {
@@ -17,6 +17,7 @@ export default class WeatherContainer extends Component {
     this.state = {
       weather: null
     };
+    this.weatherService = weatherService;
   }
 
   static contextType = LocationContext;
@@ -28,11 +29,11 @@ export default class WeatherContainer extends Component {
       console.log("location prop missing...");
       return; // nothing to fetch for
     }
-    this.updateWeather(location.lat, location.lon);
+    this.updateWeather(location);
   }
 
-  updateWeather = async (lat, lon) => {
-    const weather = await getWeather(lat, lon);
+  updateWeather = async location => {
+    const weather = await weatherService.getWeather(location);
     this.setState({ weather });
     return weather && String(weather.currently.icon).includes("night")
       ? this.context.setDayTime("night")

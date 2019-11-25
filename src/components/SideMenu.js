@@ -27,11 +27,7 @@ export default function SideMenu({ toggleSideMenu, isToggledOn, navigation }) {
 
   return (
     <Animated.View style={[styles.container, { translateX: state.translateX }]}>
-      <ScrollView
-        style={styles.listWrapper}
-        scrollEventThrottle={1}
-        onScroll={Animated.event({ useNativeDriver: true })}
-      >
+      <ScrollView style={styles.listWrapper}>
         <View style={styles.header}>
           <Text style={styles.headerText}>My Locations</Text>
           <TouchableOpacity onPress={toggleSideMenu} style={styles.closeMenu}>

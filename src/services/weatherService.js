@@ -24,7 +24,7 @@ class WeatherService {
     if (!fromCache) {
       const fromFetch = await getWeather(location.lat, location.lon);
       if (!fromFetch) return Promise.reject(null);
-      await this.cache.setItems(location.id, fromFetch);
+      await this.cache.setItem(location.id, fromFetch);
       return fromFetch;
     }
     delete fromCache.expTime;
@@ -36,4 +36,4 @@ class WeatherService {
   };
 }
 
-export default WeatherService;
+export default new WeatherService();

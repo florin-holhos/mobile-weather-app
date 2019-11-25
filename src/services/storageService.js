@@ -4,7 +4,7 @@ export default class Storage {
     this.store = AsyncStorage;
   }
 
-  /**@setItems method stores data into selected storage */
+  /**@setItemmethod stores data into selected storage */
   setItem = async (key, value) => {
     try {
       await this.store.setItem(key, JSON.stringify(value));
@@ -14,7 +14,7 @@ export default class Storage {
     }
   };
 
-  /**@getItems method returns stored data from the storage */
+  /**@getItem method returns stored data from the storage */
   getItem = async key => {
     try {
       let data = await this.store.getItem(key);
@@ -27,6 +27,11 @@ export default class Storage {
   };
 
   removeItem = async key => {
-    await this.store.removeItem(key);
+    try {
+      await this.store.removeItem(key);
+      return true;
+    } catch (exception) {
+      return false;
+    }
   };
 }

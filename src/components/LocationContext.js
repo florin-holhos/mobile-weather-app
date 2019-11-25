@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import WeatherService from "../services/weatherService";
+import weatherService from "../services/weatherService";
 import Storage from "../services/storageService";
 
 export const LocationContext = React.createContext();
@@ -13,7 +13,8 @@ export default class LocationProvider extends Component {
       foregroundColor: "#000"
     };
     this.storage = new Storage();
-    this.weatherService = new WeatherService();
+    this.weatherService = weatherService;
+    this.userLocations = "USER_LOCATIONS";
   }
 
   componentDidMount() {
@@ -21,7 +22,7 @@ export default class LocationProvider extends Component {
   }
 
   getLocationsFromStorage = async () => {
-    const locations = await this.storage.getItem("USER_LOCATIONS");
+    const locations = await this.storage.getItem(this.userLocations);
     if (locations && locations.length) {
       this.setState({ locations });
       this.updateWeatherForeach(locations);
@@ -30,7 +31,6 @@ export default class LocationProvider extends Component {
 
   // cache weather info for stored locations to improve loading time
   updateWeatherForeach = async locations => {
-    console.log(locations);
     await this.weatherService.getWeatherForeach(locations);
   };
 
@@ -44,7 +44,7 @@ export default class LocationProvider extends Component {
   updateLocations = async location => {
     const locations = [...this.state.locations, location];
     this.setState({ locations });
-    await this.storage.setItem("USER_LOCATIONS", locations);
+    await this.storage.setItem(this.userLocations, locations);
   };
 
   removeLocation = async location => {
@@ -53,8 +53,10 @@ export default class LocationProvider extends Component {
       loc => loc.id !== location.id
     );
     this.setState({ locations });
-    // remove from storage
-    this.storage.setItem("USER_LOCATIONS", locations);
+    // remove weather
+    await this.storage.removeItem(location.id);
+    // overwrite locations with the new array
+    await this.storage.setItem(this.userLocations, locations);
   };
 
   render() {
