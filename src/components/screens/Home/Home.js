@@ -110,7 +110,7 @@ export default class Home extends Component {
   };
 
   render() {
-    const { location, date, isToggledOn, scrollEnabled } = this.state;
+    const { location, date, isToggledOn } = this.state;
     const { navigation } = this.props;
     const { backgroundColor, foregroundColor } = this.context;
     return (
