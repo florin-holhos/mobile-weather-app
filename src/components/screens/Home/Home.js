@@ -1,8 +1,7 @@
-import React, { Component, useContext } from "react";
+import React, { Component } from "react";
 import { Text, View, StyleSheet, ActivityIndicator } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import GestureRecognizer from "react-native-swipe-gestures";
-
 // services
 import { getLocationAsync } from "../../../services/reverseGeocoding";
 import Storage from "../../../services/storageService";
@@ -30,10 +29,6 @@ export default class Home extends Component {
       isToggledOn: false
     };
     this.storage = new Storage();
-  }
-
-  componentDidMount() {
-    this.updateHome();
   }
 
   updateHome = async () => {
@@ -100,12 +95,12 @@ export default class Home extends Component {
   swipeRight = () => {
     return this.state.isToggledOn
       ? false
-      : this.setState({ isToggledOn: true, scrollEnabled: true });
+      : this.setState({ isToggledOn: true });
   };
 
   swipeLeft = () => {
     return this.state.isToggledOn
-      ? this.setState({ isToggledOn: false, scrollEnabled: true })
+      ? this.setState({ isToggledOn: false })
       : false;
   };
 

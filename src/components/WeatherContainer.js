@@ -31,7 +31,6 @@ export default class WeatherContainer extends Component {
     }
     this.updateWeather(location);
   }
-
   updateWeather = async location => {
     const weather = await weatherService.getWeather(location);
     this.setState({ weather });
@@ -43,7 +42,6 @@ export default class WeatherContainer extends Component {
   render() {
     const { weather } = this.state;
     const { backgroundColor, foregroundColor } = this.context;
-    // console.log(weather);
     return (
       <>
         {(weather && (
