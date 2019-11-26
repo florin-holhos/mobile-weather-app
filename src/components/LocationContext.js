@@ -61,12 +61,7 @@ export default class LocationProvider extends Component {
 
   render() {
     const { children } = this.props;
-    const {
-      locations,
-      backgroundColor,
-      foregroundColor,
-      currentLocation
-    } = this.state;
+    const { locations, backgroundColor, foregroundColor } = this.state;
     return (
       <LocationContext.Provider
         value={{

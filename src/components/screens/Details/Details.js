@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import { Text, View, StyleSheet } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import GestureRecognizer from "react-native-swipe-gestures";
-
 // components
 import WeatherContainer from "../../WeatherContainer";
 import { LocationContext } from "../../LocationContext";
