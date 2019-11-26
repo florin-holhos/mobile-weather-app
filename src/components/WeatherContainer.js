@@ -161,7 +161,7 @@ export default class WeatherContainer extends Component {
           <ActivityIndicator
             size="large"
             color="#e94c89"
-            style={{ height: 400 }}
+            style={{ height: 600 }}
           />
         )}
       </>
