@@ -61,7 +61,7 @@ export default class SearchBar extends Component {
     if (locations.length) {
       const loc = locations.find(loc => loc.name === item.name);
       if (loc) {
-        return navigation.push("Details", { location: item });
+        return navigation.push("Details", { location: loc });
       }
     }
     // add an id to this location if it's new
