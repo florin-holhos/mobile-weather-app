@@ -1,7 +1,7 @@
 import React, { Component } from "react";
-import { Text, View, StyleSheet, Animated } from "react-native";
+import { Text, View, StyleSheet } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
-
+import GestureRecognizer from "react-native-swipe-gestures";
 // components
 import WeatherContainer from "../../WeatherContainer";
 import { LocationContext } from "../../LocationContext";
@@ -23,6 +23,18 @@ export default class Details extends Component {
   toggleSideMenu = () =>
     this.setState({ isToggledOn: !this.state.isToggledOn });
 
+  swipeRight = () => {
+    return this.state.isToggledOn
+      ? false
+      : this.setState({ isToggledOn: true });
+  };
+
+  swipeLeft = () => {
+    return this.state.isToggledOn
+      ? this.setState({ isToggledOn: false })
+      : false;
+  };
+
   render() {
     const { isToggledOn } = this.state;
     const { navigation } = this.props;
@@ -30,26 +42,31 @@ export default class Details extends Component {
     const { backgroundColor, foregroundColor } = this.context;
     return (
       <>
-        <SideMenu
-          toggleSideMenu={this.toggleSideMenu}
-          isToggledOn={isToggledOn}
-          navigation={navigation}
-        />
-        <ScrollView style={{ backgroundColor: backgroundColor }}>
-          <View style={this.styles.container}>
-            <Header
-              navigation={navigation}
-              location={location}
-              toggleSideMenu={this.toggleSideMenu}
-            />
-            <Text
-              style={{ fontSize: 12, color: foregroundColor, opacity: 0.7 }}
-            >
-              Now
-            </Text>
-            {location && <WeatherContainer location={location} />}
-          </View>
-        </ScrollView>
+        <GestureRecognizer
+          onSwipeRight={this.swipeRight}
+          onSwipeLeft={this.swipeLeft}
+        >
+          <SideMenu
+            toggleSideMenu={this.toggleSideMenu}
+            isToggledOn={isToggledOn}
+            navigation={navigation}
+          />
+          <ScrollView style={{ backgroundColor: backgroundColor }}>
+            <View style={this.styles.container}>
+              <Header
+                navigation={navigation}
+                location={location}
+                toggleSideMenu={this.toggleSideMenu}
+              />
+              <Text
+                style={{ fontSize: 12, color: foregroundColor, opacity: 0.7 }}
+              >
+                Now
+              </Text>
+              {location && <WeatherContainer location={location} />}
+            </View>
+          </ScrollView>
+        </GestureRecognizer>
       </>
     );
   }

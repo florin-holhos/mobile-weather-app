@@ -1,7 +1,7 @@
-import React, { Component, useContext } from "react";
+import React, { Component } from "react";
 import { Text, View, StyleSheet, ActivityIndicator } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
-
+import GestureRecognizer from "react-native-swipe-gestures";
 // services
 import { getLocationAsync } from "../../../services/reverseGeocoding";
 import Storage from "../../../services/storageService";
@@ -29,10 +29,6 @@ export default class Home extends Component {
       isToggledOn: false
     };
     this.storage = new Storage();
-  }
-
-  componentDidMount() {
-    this.updateHome();
   }
 
   updateHome = async () => {
@@ -96,38 +92,55 @@ export default class Home extends Component {
     this.setState({ isToggledOn: !this.state.isToggledOn });
   };
 
+  swipeRight = () => {
+    return this.state.isToggledOn
+      ? false
+      : this.setState({ isToggledOn: true });
+  };
+
+  swipeLeft = () => {
+    return this.state.isToggledOn
+      ? this.setState({ isToggledOn: false })
+      : false;
+  };
+
   render() {
     const { location, date, isToggledOn } = this.state;
     const { navigation } = this.props;
     const { backgroundColor, foregroundColor } = this.context;
     return (
       <>
-        <SideMenu
-          toggleSideMenu={this.toggleSideMenu}
-          isToggledOn={isToggledOn}
-          navigation={navigation}
-        />
-        {(navigation && location && (
-          <ScrollView style={{ backgroundColor: backgroundColor }}>
-            <View style={this.styles.container}>
-              <Header
-                navigation={navigation}
-                location={location}
-                toggleSideMenu={this.toggleSideMenu}
-              />
-              <Text style={[this.styles.date, { color: foregroundColor }]}>
-                {date && date}
-              </Text>
-              <WeatherContainer location={location} />
-            </View>
-          </ScrollView>
-        )) || (
-          <ActivityIndicator
-            size="large"
-            color="#e94c89"
-            style={{ height: 220 }}
+        <GestureRecognizer
+          onSwipeRight={this.swipeRight}
+          onSwipeLeft={this.swipeLeft}
+        >
+          <SideMenu
+            toggleSideMenu={this.toggleSideMenu}
+            isToggledOn={isToggledOn}
+            navigation={navigation}
           />
-        )}
+          {(navigation && location && (
+            <ScrollView style={{ backgroundColor: backgroundColor }}>
+              <View style={this.styles.container}>
+                <Header
+                  navigation={navigation}
+                  location={location}
+                  toggleSideMenu={this.toggleSideMenu}
+                />
+                <Text style={[this.styles.date, { color: foregroundColor }]}>
+                  {date && date}
+                </Text>
+                <WeatherContainer location={location} />
+              </View>
+            </ScrollView>
+          )) || (
+            <ActivityIndicator
+              size="large"
+              color="#e94c89"
+              style={{ height: 220 }}
+            />
+          )}
+        </GestureRecognizer>
       </>
     );
   }
