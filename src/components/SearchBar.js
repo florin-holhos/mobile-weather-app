@@ -59,9 +59,9 @@ export default class SearchBar extends Component {
     const { locations } = this.context;
     // check if location already exists
     if (locations.length) {
-      const loc = locations.find(loc => loc.name === item.name);
-      if (loc) {
-        return navigation.push("Details", { location: item });
+      const location = locations.find(loc => loc.name === item.name);
+      if (location) {
+        return navigation.push("Details", { location });
       }
     }
     // add an id to this location if it's new
