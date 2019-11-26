@@ -22,7 +22,7 @@ export const getLocationAsync = async () => {
     return null;
   }
 
-  const position = await Location.getCurrentPositionAsync({});
+  const position = await Location.getCurrentPositionAsync();
   const { latitude, longitude } = position.coords;
   const address = await getAddress(latitude, longitude);
   const location = {
