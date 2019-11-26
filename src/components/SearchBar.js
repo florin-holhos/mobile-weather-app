@@ -11,6 +11,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { searchAutocomplete } from "../services/searchAutocomplete";
 import { LocationContext } from "../components/LocationContext";
 import uuid4 from "uuid4";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 export default class SearchBar extends Component {
   static contextType = LocationContext;
@@ -38,9 +39,6 @@ export default class SearchBar extends Component {
 
   handleSearch = item => {
     if (!item) return;
-    // format the name if it's too long
-    let { name } = item;
-    item.name = name.length > 36 ? name.slice(0, 36) + "..." : name;
     // clear the suggestions list when user selects one
     this.setState({ inputValue: item.name, suggestions: null });
 
@@ -58,10 +56,10 @@ export default class SearchBar extends Component {
 
     // get the navigation from props
     const navigation = this.props.navigation;
-
+    const { locations } = this.context;
     // check if location already exists
-    if (this.context.locations) {
-      const loc = this.context.locations.find(loc => loc.name === item.name);
+    if (locations.length) {
+      const loc = locations.find(loc => loc.name === item.name);
       if (loc) {
         return navigation.push("Details", { location: item });
       }
@@ -93,36 +91,45 @@ export default class SearchBar extends Component {
 
   render() {
     const { inputValue, suggestions, error } = this.state;
+    const { backgroundColor, foregroundColor } = this.context;
     return (
       <View style={this.styles.container}>
-        <View style={this.styles.search}>
+        <View style={[this.styles.search, { borderColor: foregroundColor }]}>
           <Ionicons name="md-search" size={22} color="#ccc" />
           <TextInput
             style={[
               this.styles.input,
               {
-                color: error ? "red" : "#222",
+                color: error ? "red" : foregroundColor,
                 textDecorationLine: error ? "line-through" : "none"
               }
             ]}
             placeholder="Search for location..."
             onChangeText={this.update}
-            value={inputValue}
+            value={
+              String(inputValue).length > 36
+                ? String(inputValue).slice(0, 36) + "..."
+                : String(inputValue)
+            }
           />
         </View>
         {suggestions && (
           <FlatList
             nestedScrollEnabled={true}
-            style={this.styles.autocompleteList}
+            style={[
+              this.styles.autocompleteList,
+              { backgroundColor: backgroundColor, borderColor: foregroundColor }
+            ]}
             data={suggestions}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({ item }) => (
-              <Text
-                style={this.styles.listItem}
-                onPress={() => this.handleSearch(item)}
-              >
-                {item.name}
-              </Text>
+              <TouchableOpacity onPress={() => this.handleSearch(item)}>
+                <Text
+                  style={[this.styles.listItem, { color: foregroundColor }]}
+                >
+                  {item.name}
+                </Text>
+              </TouchableOpacity>
             )}
           />
         )}
@@ -149,7 +156,6 @@ export default class SearchBar extends Component {
     },
     autocompleteList: {
       position: "absolute",
-      backgroundColor: "#fff",
       marginTop: 50,
       width: "100%",
       maxHeight: 300,

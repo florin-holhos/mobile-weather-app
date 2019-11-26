@@ -1,4 +1,6 @@
 import React, { Component } from "react";
+import weatherService from "../services/weatherService";
+import Storage from "../services/storageService";
 
 export const LocationContext = React.createContext();
 
@@ -6,40 +8,74 @@ export default class LocationProvider extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      locations: null
+      locations: [],
+      backgroundColor: "#fff",
+      foregroundColor: "#000"
     };
+    this.storage = new Storage();
+    this.weatherService = weatherService;
+    this.userLocations = "USER_LOCATIONS";
   }
 
-  componentDidMount() {}
-
-  componentDidUpdate() {
-    //console.log(this.state.locations);
+  componentDidMount() {
+    this.getLocationsFromStorage();
   }
 
-  updateLocations = location => {
-    let { locations } = this.state;
-    locations = locations ? [...locations, location] : [location];
-    this.setState({ locations });
+  getLocationsFromStorage = async () => {
+    const locations = await this.storage.getItem(this.userLocations);
+    if (locations && locations.length) {
+      this.setState({ locations });
+      this.updateWeatherForeach(locations);
+    }
   };
 
-  removeLocation = location => {
+  // cache weather info for stored locations to improve loading time
+  updateWeatherForeach = async locations => {
+    await this.weatherService.getWeatherForeach(locations);
+  };
+
+  setDayTime = dayTime => {
+    if (dayTime === "night")
+      this.setState({ backgroundColor: "#33283b", foregroundColor: "#fff" });
+    if (dayTime === "day")
+      this.setState({ backgroundColor: "#fff", foregroundColor: "#000" });
+  };
+
+  updateLocations = async location => {
+    const locations = [...this.state.locations, location];
+    this.setState({ locations });
+    await this.storage.setItem(this.userLocations, locations);
+  };
+
+  removeLocation = async location => {
     // remove from state
     const locations = this.state.locations.filter(
       loc => loc.id !== location.id
     );
     this.setState({ locations });
-    // remove from storage
+    // remove weather
+    await this.storage.removeItem(location.id);
+    // overwrite locations with the new array
+    await this.storage.setItem(this.userLocations, locations);
   };
 
   render() {
     const { children } = this.props;
-    const { locations } = this.state;
+    const {
+      locations,
+      backgroundColor,
+      foregroundColor,
+      currentLocation
+    } = this.state;
     return (
       <LocationContext.Provider
         value={{
           locations: locations,
           updateLocations: this.updateLocations,
-          removeLocation: this.removeLocation
+          removeLocation: this.removeLocation,
+          setDayTime: this.setDayTime,
+          backgroundColor: backgroundColor,
+          foregroundColor: foregroundColor
         }}
       >
         {children}

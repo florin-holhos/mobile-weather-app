@@ -2,12 +2,15 @@ import React, { Component, useContext } from "react";
 import { Text, View, StyleSheet, ActivityIndicator } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 
+// services
 import { getLocationAsync } from "../../../services/reverseGeocoding";
+import Storage from "../../../services/storageService";
 
 // components
 import WeatherContainer from "../../WeatherContainer";
 import { LocationContext } from "../../LocationContext";
 import Header from "../../Header";
+import SideMenu from "../../SideMenu";
 export default class Home extends Component {
   static navigationOptions = {
     headerStyle: {
@@ -21,44 +24,51 @@ export default class Home extends Component {
     super();
     this.state = {
       location: null,
-      loading: true,
       date: null,
-      errorMessage: null
+      errorMessage: null,
+      isToggledOn: false
     };
-    this.timeout = null; // initialize in updateTime method
+    this.storage = new Storage();
   }
 
-  async componentDidMount() {
+  componentDidMount() {
+    this.updateHome();
+  }
+
+  updateHome = async () => {
     this.updateDate();
-    const location = await getLocationAsync();
-    if (!location)
-      return this.setState({
-        errorMessage: "Permission to access location was denied"
-      });
+    const CURRENT_LOCATION = "CURRENT_LOCATION";
+    let location = await this.storage.getItem(CURRENT_LOCATION);
 
-    this.setState({
-      location: location,
-      loading: false
-    });
-    // update context
-    this.context.updateLocations(location);
-  }
+    if (!location) {
+      location = await getLocationAsync();
+      if (!location)
+        return this.setState({
+          errorMessage: "Permission to access location was denied"
+        });
+      await this.storage.setItem(CURRENT_LOCATION, location);
+    }
 
-  componentWillUnmount() {
-    // remove timer on unmount
-    clearTimeout(this.timeout);
-  }
+    this.setState({ location });
+
+    // check if current location is valid
+    const deviceLocation = await getLocationAsync();
+    return location.name !== deviceLocation.name
+      ? this.setState({ location: deviceLocation }) &&
+          (await this.storage.setItem(CURRENT_LOCATION, deviceLocation))
+      : false;
+  };
 
   // get current time
   updateDate = () => {
     const days = [
+      "Sunday",
       "Monday",
       "Tuesday",
       "Wednesday",
       "Thursday",
       "Friday",
-      "Saturday",
-      "Sunday"
+      "Saturday"
     ];
 
     const months = [
@@ -76,44 +86,56 @@ export default class Home extends Component {
       "December"
     ];
     let date = new Date();
-    date = `${days[date.getDay() - 1]} ${date.getDate()} ${
+    date = `${days[date.getDay()]}, ${date.getDate()} ${
       months[date.getMonth()]
     } ${date.getFullYear()}`;
     return this.setState({ date });
   };
 
+  toggleSideMenu = () => {
+    this.setState({ isToggledOn: !this.state.isToggledOn });
+  };
+
   render() {
-    const { location, date, loading } = this.state;
+    const { location, date, isToggledOn } = this.state;
     const { navigation } = this.props;
+    const { backgroundColor, foregroundColor } = this.context;
     return (
-      <ScrollView>
-        <View style={this.styles.container}>
-          {navigation && location && (
-            <Header navigation={navigation} location={location} />
-          )}
-          {loading && (
-            <ActivityIndicator
-              size="large"
-              color="#0000ff"
-              style={{ marginTop: 40 }}
-            />
-          )}
-          {location && (
-            <>
-              <Text style={this.styles.date}>{date && date}</Text>
+      <>
+        <SideMenu
+          toggleSideMenu={this.toggleSideMenu}
+          isToggledOn={isToggledOn}
+          navigation={navigation}
+        />
+        {(navigation && location && (
+          <ScrollView style={{ backgroundColor: backgroundColor }}>
+            <View style={this.styles.container}>
+              <Header
+                navigation={navigation}
+                location={location}
+                toggleSideMenu={this.toggleSideMenu}
+              />
+              <Text style={[this.styles.date, { color: foregroundColor }]}>
+                {date && date}
+              </Text>
               <WeatherContainer location={location} />
-            </>
-          )}
-        </View>
-      </ScrollView>
+            </View>
+          </ScrollView>
+        )) || (
+          <ActivityIndicator
+            size="large"
+            color="#e94c89"
+            style={{ height: 220 }}
+          />
+        )}
+      </>
     );
   }
 
   styles = StyleSheet.create({
     container: {
-      height: 1000,
       padding: 15
     },
-    date: { fontSize: 12, color: "rgba(0,0,0,0.7)" }
+    date: { fontSize: 12, opacity: 0.6 }
   });
 }
