@@ -1,2 +1,2 @@
 # mobile-weather-app
-![Screens](./assets/diploma.png)
+![Screens](./assets/Weather_App.png)

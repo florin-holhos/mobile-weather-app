@@ -31,18 +31,21 @@ export default class Home extends Component {
     this.storage = new Storage();
   }
 
+  componentDidMount() {
+    this.updateHome();
+  }
+
   updateHome = async () => {
     this.updateDate();
     const CURRENT_LOCATION = "CURRENT_LOCATION";
     let location = await this.storage.getItem(CURRENT_LOCATION);
-
     if (!location) {
       location = await getLocationAsync();
       if (!location)
         return this.setState({
           errorMessage: "Permission to access location was denied"
         });
-      await this.storage.setItem(CURRENT_LOCATION, location);
+      this.storage.setItem(CURRENT_LOCATION, location);
     }
 
     this.setState({ location });
@@ -51,7 +54,7 @@ export default class Home extends Component {
     const deviceLocation = await getLocationAsync();
     return location.name !== deviceLocation.name
       ? this.setState({ location: deviceLocation }) &&
-          (await this.storage.setItem(CURRENT_LOCATION, deviceLocation))
+          this.storage.setItem(CURRENT_LOCATION, deviceLocation)
       : false;
   };
 
