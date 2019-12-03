@@ -18,7 +18,6 @@ export const searchAutocomplete = async input => {
     const results = await response.data.Results;
     return response.status === 200 ? results : null;
   } catch (error) {
-    console.log(error);
     return null;
   }
 };

@@ -45,6 +45,7 @@ export default class Home extends Component {
         return this.setState({
           errorMessage: "Permission to access location was denied"
         });
+      d;
       this.storage.setItem(CURRENT_LOCATION, location);
     }
 
@@ -52,6 +53,7 @@ export default class Home extends Component {
 
     // check if current location is valid
     const deviceLocation = await getLocationAsync();
+    if (!deviceLocation) return;
     return location.name !== deviceLocation.name
       ? this.setState({ location: deviceLocation }) &&
           this.storage.setItem(CURRENT_LOCATION, deviceLocation)
