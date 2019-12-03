@@ -45,7 +45,6 @@ export default class Home extends Component {
         return this.setState({
           errorMessage: "Permission to access location was denied"
         });
-      d;
       this.storage.setItem(CURRENT_LOCATION, location);
     }
 
