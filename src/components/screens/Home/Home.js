@@ -52,6 +52,7 @@ export default class Home extends Component {
 
     // check if current location is valid
     const deviceLocation = await getLocationAsync();
+    if (!deviceLocation) return;
     return location.name !== deviceLocation.name
       ? this.setState({ location: deviceLocation }) &&
           this.storage.setItem(CURRENT_LOCATION, deviceLocation)

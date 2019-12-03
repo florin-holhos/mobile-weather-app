@@ -167,7 +167,7 @@ export default class SearchBar extends Component {
     },
     listItem: {
       textAlignVertical: "center",
-      paddingLeft: 36,
+      paddingLeft: 27,
       fontSize: 16,
       height: 50
     }
