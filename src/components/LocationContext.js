@@ -1,4 +1,7 @@
 import React, { Component } from "react";
+
+// services
+import { getLocationAsync } from "../services/reverseGeocoding";
 import weatherService from "../services/weatherService";
 import Storage from "../services/storageService";
 
@@ -9,23 +12,50 @@ export default class LocationProvider extends Component {
     super(props);
     this.state = {
       locations: [],
+      currentLocation: null,
       backgroundColor: "#fff",
       foregroundColor: "#000"
     };
     this.storage = new Storage();
     this.weatherService = weatherService;
-    this.userLocations = "USER_LOCATIONS";
+    this.USER_LOCATIONS = "USER_LOCATIONS";
+    this.CURRENT_LOCATION = "CURRENT_LOCATION";
   }
 
   componentDidMount() {
-    this.getLocationsFromStorage();
+    this.updateCurrentLocation();
+    this.updateLocationsFromStorage();
   }
 
-  getLocationsFromStorage = async () => {
-    const locations = await this.storage.getItem(this.userLocations);
+  updateLocationsFromStorage = async () => {
+    const locations = await this.storage.getItem(this.USER_LOCATIONS);
     if (Array.isArray(locations) && locations.length) {
       this.setState({ locations });
       this.updateWeatherForeach(locations);
+    }
+  };
+
+  updateCurrentLocation = async () => {
+    const currentLocation = await this.storage.getItem(this.CURRENT_LOCATION);
+    if (!currentLocation) {
+      const newLocation = await getLocationAsync();
+      if (!newLocation) throw Error("Permission not granted!");
+      this.setState({ currentLocation: newLocation });
+      await this.storage.setItem(this.CURRENT_LOCATION, newLocation);
+      return;
+    }
+
+    this.setState({ currentLocation });
+
+    // compare this.CURRENT_LOCATION with the actual device location
+    const deviceLocation = await getLocationAsync();
+    if (
+      currentLocation.lat !== deviceLocation.lat &&
+      currentLocation.lon !== deviceLocation.lon
+    ) {
+      this.setState({ currentLocation: deviceLocation });
+      await this.storage.setItem(this.CURRENT_LOCATION, deviceLocation);
+      return;
     }
   };
 
@@ -44,7 +74,7 @@ export default class LocationProvider extends Component {
   updateLocations = async location => {
     const locations = [...this.state.locations, location];
     this.setState({ locations });
-    await this.storage.setItem(this.userLocations, locations);
+    await this.storage.setItem(this.USER_LOCATIONS, locations);
   };
 
   removeLocation = async location => {
@@ -56,16 +86,22 @@ export default class LocationProvider extends Component {
     // remove weather
     await this.storage.removeItem(location.id);
     // overwrite locations with the new array
-    await this.storage.setItem(this.userLocations, locations);
+    await this.storage.setItem(this.USER_LOCATIONS, locations);
   };
 
   render() {
     const { children } = this.props;
-    const { locations, backgroundColor, foregroundColor } = this.state;
+    const {
+      locations,
+      currentLocation,
+      backgroundColor,
+      foregroundColor
+    } = this.state;
     return (
       <LocationContext.Provider
         value={{
           locations: locations,
+          currentLocation: currentLocation,
           updateLocations: this.updateLocations,
           removeLocation: this.removeLocation,
           setDayTime: this.setDayTime,
