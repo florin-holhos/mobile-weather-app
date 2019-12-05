@@ -23,7 +23,7 @@ export default class LocationProvider extends Component {
 
   getLocationsFromStorage = async () => {
     const locations = await this.storage.getItem(this.userLocations);
-    if (locations && locations.length) {
+    if (Array.isArray(locations) && locations.length) {
       this.setState({ locations });
       this.updateWeatherForeach(locations);
     }
