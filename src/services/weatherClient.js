@@ -36,7 +36,6 @@ export const getWeather = async (lat, lon) => {
       forecast: weather.slice(1, 6)
     };
   } catch (err) {
-    console.log(err);
     return null;
   }
 };

@@ -28,7 +28,31 @@ export default class Home extends Component {
 
   componentDidMount() {
     this.updateDate();
+<<<<<<< HEAD
   }
+=======
+    const CURRENT_LOCATION = "CURRENT_LOCATION";
+    let location = await this.storage.getItem(CURRENT_LOCATION);
+    if (!location) {
+      location = await getLocationAsync();
+      if (!location)
+        return this.setState({
+          errorMessage: "Permission to access location was denied"
+        });
+      this.storage.setItem(CURRENT_LOCATION, location);
+    }
+
+    this.setState({ location });
+
+    // check if current location is valid
+    const deviceLocation = await getLocationAsync();
+    if (!deviceLocation) return;
+    return location.name !== deviceLocation.name
+      ? this.setState({ location: deviceLocation }) &&
+          this.storage.setItem(CURRENT_LOCATION, deviceLocation)
+      : false;
+  };
+>>>>>>> 561d970e288131e4ca6b2efa6bfdc8401c679d13
 
   // get current time
   updateDate = () => {

@@ -10,7 +10,6 @@ const getAddress = async (lat, lon) => {
     const response = await axios.get(url);
     return response.data.address;
   } catch (error) {
-    console.log(error);
     return null;
   }
 };
@@ -25,6 +24,9 @@ export const getLocationAsync = async () => {
   const position = await Location.getCurrentPositionAsync();
   const { latitude, longitude } = position.coords;
   const address = await getAddress(latitude, longitude);
+
+  if (!address) return null;
+
   const location = {
     name: address.village || address.city,
     lat: latitude,
